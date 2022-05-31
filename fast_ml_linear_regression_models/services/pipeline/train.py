@@ -27,16 +27,16 @@ class TrainingPipeline:
     def train(self, algorithm: str, filepath: str):
         working_directory: str = get_directory(filepath)
         logger: logging.Logger = get_logger(log_file_directory=working_directory)
-        logger.info(f"Started training {algorithm} model")
+        logger.info(f"[{algorithm}] Started model training")
 
         data: pd.DataFrame = self._dataset_reading_op.read(filepath=filepath)
         X, y = self._dataset_splitting_op.split(dataframe=data)
         model = self._training_op.train(algorithm=algorithm, X=X, y=y, directory=working_directory)
-        logger.info(f"Ended training {algorithm} model")
+        logger.info(f"[{algorithm}] Ended model training")
 
-        logger.info("Started Leave-One-Out cross validation")
+        logger.info(f"[{algorithm}] Started Leave-One-Out cross validation")
         r2, mse, mae = self._cross_validation_op.run(model=model, X=X, y=y)
-        logger.info(f"Ended cross validation. R^2: {r2:.3f}, mse: {mse:.3f}, mae: {mae:.3f}")
+        logger.info(f"[{algorithm}] Ended cross validation. R^2: {r2:.3f}, mse: {mse:.3f}, mae: {mae:.3f}")
 
         metrics_path: str = get_filepath(directory=working_directory, filename=ModelSavingSettings.metrics_filename)
         metrics_file = open(metrics_path, "a")

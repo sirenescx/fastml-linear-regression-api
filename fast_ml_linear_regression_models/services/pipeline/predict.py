@@ -32,5 +32,5 @@ class PredictionPipeline:
             output_directory=working_directory,
             algorithm=algorithm
         )
-        logger.info("Ended prediction with Ridge model")
+        logger.info(f"Ended prediction with {algorithm} model")
         return f"{algorithm}"

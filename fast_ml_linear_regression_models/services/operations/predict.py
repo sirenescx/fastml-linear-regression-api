@@ -1,6 +1,6 @@
 import pandas as pd
 
-from fast_ml_linear_regression_models.services.pipeline.settings import PredictionSettings, DataFrameSettings
+from fast_ml_linear_regression_models.services.pipeline.settings import DataFrameSettings
 from fast_ml_linear_regression_models.services.utils.file_utils import get_filepath
 
 
