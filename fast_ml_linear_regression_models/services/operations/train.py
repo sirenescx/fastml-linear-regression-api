@@ -3,13 +3,14 @@ import sys
 from logging import Logger
 
 import pandas as pd
-from sklearn.linear_model import Ridge, Lasso, ElasticNet, SGDRegressor, LinearRegression, Lars, HuberRegressor
+from sklearn.linear_model import Ridge, Lasso, ElasticNet, SGDRegressor, LinearRegression, Lars, HuberRegressor, \
+    RANSACRegressor
 
 from fast_ml_linear_regression_models.services.pipeline.settings import ModelSavingSettings
 from fast_ml_linear_regression_models.services.utils.file_utils import get_filepath
 
 from skopt import BayesSearchCV
-from skopt.space import Real, Categorical
+from skopt.space import Real, Categorical, Integer
 
 from fast_ml_linear_regression_models.services.utils.logging_utils import get_logger
 
@@ -45,6 +46,8 @@ class TrainingOperation:
                 model = self._train_sgd_regressor(X, y)
             case "HuberRegressor":
                 model = self._train_huber_regressor(X, y)
+            case "RANSACRegressor":
+                model = self._train_ransac_regressor(X, y)
             case _:
                 raise Exception("Invalid algorithm name")
 
@@ -134,7 +137,18 @@ class TrainingOperation:
         pass
 
     def _train_ransac_regressor(self, X: pd.DataFrame, y: pd.Series):
-        pass
+        optimizer = BayesSearchCV(
+            estimator=RANSACRegressor(),
+            search_spaces={
+                "min_samples": Integer(1, X.shape[1] - 1),
+                "residual_threshold": Real(1e-6, 1e+6, prior="log-uniform"),
+                "max_trials": Integer(1, 1e+6, prior="log-uniform")
+            },
+            n_iter=32,
+            random_state=42
+        )
+        _ = optimizer.fit(X, y)
+        return optimizer.best_estimator_
 
     def _train_huber_regressor(self, X: pd.DataFrame, y: pd.Series):
         optimizer = BayesSearchCV(
